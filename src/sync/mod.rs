@@ -1050,9 +1050,10 @@ fn staged_backlog_bytes(staging: &Path) -> u64 {
             continue;
         };
         for f in files.flatten() {
-            if f.file_name().to_string_lossy().ends_with(".ltx")
-                && let Ok(m) = f.metadata()
-            {
+            if !f.file_name().to_string_lossy().ends_with(".ltx") {
+                continue;
+            }
+            if let Ok(m) = f.metadata() {
                 total += m.len();
             }
         }

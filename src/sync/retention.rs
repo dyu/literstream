@@ -26,10 +26,10 @@ fn expired(f: &LtxFileInfo, cutoff: SystemTime) -> bool {
 /// Drops the newest file from `deleted` if it is the global newest of `files`
 /// (the keep-newest guarantee). `files` and `deleted` are ascending by TXID.
 fn keep_newest(files: &[LtxFileInfo], deleted: &mut Vec<LtxFileInfo>) {
-    if let (Some(last), Some(dlast)) = (files.last(), deleted.last())
-        && dlast == last
-    {
-        deleted.pop();
+    if let (Some(last), Some(dlast)) = (files.last(), deleted.last()) {
+        if dlast == last {
+            deleted.pop();
+        }
     }
 }
 

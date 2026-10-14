@@ -1,7 +1,7 @@
 [package]
 name = "literstream"
 version = "0.1.2"
-edition = "2024"
+edition = "2021"
 description = "Continuously back up a live SQLite database to object storage; a Rust library port of Litestream"
 license = "MIT"
 
@@ -11,11 +11,11 @@ futures = "0.3.32"
 libc = "0.2.186"
 # LZ4 *block* codec (raw blocks, no frame/size prefix) — matches the
 # pierrec/lz4 UncompressBlock/CompressBlock that superfly/ltx uses per page.
-lz4_flex = "0.11"
-object_store = { version = "0.14.0", features = ["aws", "gcp"] }
+lz4_flex = "0.10.0"
+object_store = { version = "0.12.5", features = ["aws", "gcp"] }
 # Pinned to 0.35: newer libsqlite3-sys build scripts use the unstable
 # `cfg_select` feature, which this toolchain rejects.
-rusqlite = { version = "0.35", features = ["bundled"] }
+rusqlite = { git = "https://github.com/dyu/rusqlite.git", branch = "legacy", features = ["bundled", "blob"] }
 # The restore position marker (`<db>-litestream/RESTORED`) is JSON, so it stays
 # readable when debugging a real replica by hand.
 serde = { version = "1", features = ["derive"] }
@@ -28,7 +28,7 @@ tokio = { version = "1.52.3", features = [
     "signal",
 ], optional = true }
 # CLI-only: argument parsing and RFC 3339 timestamp parsing for `restore --timestamp`.
-clap = { version = "4", features = ["derive"], optional = true }
+clap = { version = "4.5.61", features = ["derive"], optional = true }
 jiff = { version = "0.2", optional = true }
 
 [features]

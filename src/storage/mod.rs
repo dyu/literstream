@@ -16,7 +16,7 @@ use std::time::SystemTime;
 use bytes::Bytes;
 use futures::StreamExt;
 use object_store::{
-    ObjectStore, ObjectStoreExt, PutMode, PutOptions, PutPayload, path::Path as ObjectPath,
+    ObjectStore, PutMode, PutOptions, PutPayload, path::Path as ObjectPath,
 };
 
 /// Multipart part size. S3 requires every part except the last to be ≥ 5 MiB.
