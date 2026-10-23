@@ -150,12 +150,12 @@ impl ObjectStore for CountingStore {
     */
 
     async fn copy(&self, from: &OsPath, to: &OsPath) -> OsResult<()> {
-        self.c.list.fetch_add(1, Relaxed);
+        self.c.copy.fetch_add(1, Relaxed);
         self.inner.copy(from, to).await
     }
 
     async fn copy_if_not_exists(&self, from: &OsPath, to: &OsPath) -> OsResult<()> {
-        self.c.list.fetch_add(1, Relaxed);
+        self.c.copy.fetch_add(1, Relaxed);
         self.inner.copy_if_not_exists(from, to).await
     }
 }
