@@ -288,7 +288,10 @@ async fn main() {
     );
     println!("prefix   : {base_prefix}/db-<i>\n");
 
-    let dir = std::env::temp_dir().join(format!("literstream-fanout-{}", std::process::id()));
+    let out_dir = "target/fanout_bench";
+    std::fs::create_dir_all(out_dir).unwrap();
+    //let dir = std::env::temp_dir().join(format!("literstream-fanout-{}", std::process::id()));
+    let dir = std::path::PathBuf::from(out_dir).join(format!("literstream-fanout-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
 
@@ -305,9 +308,12 @@ async fn main() {
 
     let mut opens = Vec::with_capacity(n);
     for (i, path) in db_paths.iter().enumerate() {
+        // needs `ulimit -n 16384` otherwise it errors on the 80th+ db
         let client = ReplicaClient::new(store.clone(), format!("{base_prefix}/db-{i}"));
+        // println!("Opening {}", path.display());
         let db = Db::open(path).unwrap();
         opens.push(literstream::sync::Syncer::open(db, client));
+        // std::thread::sleep(Duration::from_millis(100));
     }
     // Open all syncers concurrently: each does a networked derive_position.
     let mut drivers: Vec<Driver> = join_all(opens)
