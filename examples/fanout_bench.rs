@@ -29,6 +29,7 @@ use futures::StreamExt;
 use literstream::db::Db;
 use literstream::storage::ReplicaClient;
 use literstream::sync::{CompactionLevels, Driver, restore_to_path};
+use object_store::aws::AmazonS3Builder;
 use object_store::gcp::GoogleCloudStorageBuilder;
 use object_store::local::LocalFileSystem;
 use object_store::{
@@ -268,6 +269,24 @@ async fn main() {
         std::fs::create_dir_all(&dir).unwrap();
         println!("backend  : LocalFileSystem({dir})");
         Arc::new(LocalFileSystem::new_with_prefix(&dir).unwrap())
+    } else if let Ok(endpoint) = std::env::var("LITESTREAM_S3_ENDPOINT") {
+        let region = std::env::var("LITESTREAM_S3_REGION").ok().unwrap();
+        let bucket = std::env::var("LITESTREAM_S3_BUCKET").ok().unwrap();
+        let access = std::env::var("LITESTREAM_S3_ACCESS_KEY").ok().unwrap();
+        let secret = std::env::var("LITESTREAM_S3_SECRET").ok().unwrap();
+        println!("backend  : {endpoint}/{bucket}");
+        Arc::new(
+            AmazonS3Builder::new()
+                .with_endpoint(endpoint)
+                .with_region(region)
+                .with_bucket_name(bucket)
+                .with_access_key_id(access)
+                .with_secret_access_key(secret)
+                .with_allow_http(true) // Garage speaks plain HTTP locally
+                .with_virtual_hosted_style_request(false) // path-style
+                .build()
+                .ok().unwrap()
+        )
     } else {
         let bucket = std::env::var("GCS_BUCKET")
             .or_else(|_| std::env::var("LITESTREAM_GCS_BUCKET"))
