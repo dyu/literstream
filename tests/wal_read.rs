@@ -112,7 +112,9 @@ fn trailing_garbage_is_ignored() {
     };
 
     // Append a bogus frame (all zeros => salt mismatch).
-    wal.extend(std::iter::repeat_n(0u8, 24 + 4096));
+    // wal.extend(std::iter::repeat_n(0u8, 24 + 4096));
+    // wal.extend(std::iter::repeat(0u8).take(24 + 4096));
+    wal.resize(wal.len() + 24 + 4096, 0u8);
     let dirty = {
         let mut r = WalReader::new(&wal).expect("header");
         r.page_map()

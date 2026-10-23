@@ -24,7 +24,7 @@ use literstream::sync::{
 };
 use object_store::memory::InMemory;
 use object_store::{
-    CopyOptions, GetOptions, GetResult, ListResult, MultipartUpload, ObjectMeta, ObjectStore,
+    GetOptions, GetResult, ListResult, MultipartUpload, ObjectMeta, ObjectStore,
     PutMultipartOptions, PutOptions, PutPayload, PutResult, Result as OsResult,
     path::Path as OsPath,
 };
@@ -186,10 +186,10 @@ impl ObjectStore for CountingStore {
         Ok(r)
     }
 
-    fn delete_stream(
-        &self,
-        locations: BoxStream<'static, OsResult<OsPath>>,
-    ) -> BoxStream<'static, OsResult<OsPath>> {
+    fn delete_stream<'a>(
+        &'a self,
+        locations: BoxStream<'a, OsResult<OsPath>>,
+    ) -> BoxStream<'a, OsResult<OsPath>> {
         self.inner.delete_stream(locations).boxed()
     }
 
@@ -203,9 +203,22 @@ impl ObjectStore for CountingStore {
         self.inner.list_with_delimiter(prefix).await
     }
 
+    async fn delete(&self, location: &OsPath) -> OsResult<()> {
+        self.inner.delete(location).await
+    }
+
+    async fn copy(&self, from: &OsPath, to: &OsPath) -> OsResult<()> {
+        self.inner.copy(from, to).await
+    }
+
+    async fn copy_if_not_exists(&self, from: &OsPath, to: &OsPath) -> OsResult<()> {
+        self.inner.copy_if_not_exists(from, to).await
+    }
+    /*
     async fn copy_opts(&self, from: &OsPath, to: &OsPath, options: CopyOptions) -> OsResult<()> {
         self.inner.copy_opts(from, to, options).await
     }
+    */
 }
 
 fn counting_client() -> (ReplicaClient, Arc<Counters>) {
