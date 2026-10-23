@@ -34,5 +34,5 @@ fi
 
 export LITESTREAM_S3_ENDPOINT='http://127.0.0.1:9000'
 export LITESTREAM_S3_REGION='us-east-1'
-export LITESTREAM_S3_BUCKET='literstream-with-object-lock'
+export LITESTREAM_S3_BUCKET='literstream-legacy'
 LITESTREAM_S3_ACCESS_KEY='rustfs.access.KEY' LITESTREAM_S3_SECRET='rustfs.secret.KEY' ./$REL_BIN
