@@ -128,7 +128,7 @@ impl ObjectStore for CountingStore {
     }
     
     async fn delete(&self, location: &OsPath) -> OsResult<()> {
-        self.c.delete.fetch_add(1, Relaxed);
+        // self.c.delete.fetch_add(1, Relaxed);
         self.inner.delete(location).await
     }
 
