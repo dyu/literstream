@@ -18,7 +18,7 @@ use literstream::db::Db;
 use literstream::storage::ReplicaClient;
 use literstream::sync::{CompactionLevels, Driver, Syncer, restore_to_path};
 use object_store::gcp::GoogleCloudStorageBuilder;
-use object_store::{ObjectStore, ObjectStoreExt, path::Path as OsPath};
+use object_store::{ObjectStore, path::Path as OsPath};
 use futures::StreamExt;
 use rusqlite::Connection;
 
