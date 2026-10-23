@@ -74,6 +74,8 @@ fn main() {
         let mut p = path.clone().into_os_string();
         p.push(suffix);
         //let _ = std::fs::remove_file(p);
-        println!("{}", p.display());
+        if let Some(p) = p.to_str() {
+            println!("{}", p);     
+        }
     }
 }
