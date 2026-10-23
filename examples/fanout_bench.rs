@@ -33,8 +33,8 @@ use object_store::aws::AmazonS3Builder;
 use object_store::gcp::GoogleCloudStorageBuilder;
 use object_store::local::LocalFileSystem;
 use object_store::{
-    CopyOptions, GetOptions, GetResult, ListResult, MultipartUpload, ObjectMeta, ObjectStore,
-    ObjectStoreExt, PutMultipartOptions, PutOptions, PutPayload, PutResult, Result as OsResult,
+    GetOptions, GetResult, ListResult, MultipartUpload, ObjectMeta, ObjectStore,
+    PutMultipartOptions, PutOptions, PutPayload, PutResult, Result as OsResult,
     UploadPart, path::Path as OsPath,
 };
 use rusqlite::Connection;
@@ -112,10 +112,10 @@ impl ObjectStore for CountingStore {
         self.inner.get_opts(location, options).await
     }
 
-    fn delete_stream(
-        &self,
-        locations: BoxStream<'static, OsResult<OsPath>>,
-    ) -> BoxStream<'static, OsResult<OsPath>> {
+    fn delete_stream<'a>(
+        &'a self,
+        locations: BoxStream<'a, OsResult<OsPath>>,
+    ) -> BoxStream<'a, OsResult<OsPath>> {
         let c = self.c.clone();
         self.inner
             .delete_stream(locations)
@@ -125,6 +125,11 @@ impl ObjectStore for CountingStore {
                 }
             })
             .boxed()
+    }
+    
+    async fn delete(&self, location: &OsPath) -> OsResult<()> {
+        self.c.delete.fetch_add(1, Relaxed);
+        self.inner.delete(location).await
     }
 
     fn list(&self, prefix: Option<&OsPath>) -> BoxStream<'static, OsResult<ObjectMeta>> {
@@ -137,9 +142,21 @@ impl ObjectStore for CountingStore {
         self.inner.list_with_delimiter(prefix).await
     }
 
+    /*
     async fn copy_opts(&self, from: &OsPath, to: &OsPath, options: CopyOptions) -> OsResult<()> {
         self.c.copy.fetch_add(1, Relaxed);
         self.inner.copy_opts(from, to, options).await
+    }
+    */
+
+    async fn copy(&self, from: &OsPath, to: &OsPath) -> OsResult<()> {
+        self.c.list.fetch_add(1, Relaxed);
+        self.inner.copy(from, to).await
+    }
+
+    async fn copy_if_not_exists(&self, from: &OsPath, to: &OsPath) -> OsResult<()> {
+        self.c.list.fetch_add(1, Relaxed);
+        self.inner.copy_if_not_exists(from, to).await
     }
 }
 
