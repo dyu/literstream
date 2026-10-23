@@ -9,7 +9,10 @@
 use literstream::db::{CheckpointMode, Db};
 
 fn main() {
-    let path = std::env::temp_dir().join(format!("literstream-demo-{}.db", std::process::id()));
+    let out_dir = "target/checkpoint_demo";
+    std::fs::create_dir_all(out_dir).unwrap();
+    //let path = std::env::temp_dir().join(format!("literstream-demo-{}.db", std::process::id()));
+    let path = std::path::PathBuf::from(out_dir).join(format!("literstream-demo-{}.db", std::process::id()));
     for suffix in ["", "-wal", "-shm"] {
         let mut p = path.clone().into_os_string();
         p.push(suffix);
@@ -70,6 +73,7 @@ fn main() {
     for suffix in ["", "-wal", "-shm"] {
         let mut p = path.clone().into_os_string();
         p.push(suffix);
-        let _ = std::fs::remove_file(p);
+        //let _ = std::fs::remove_file(p);
+        println!("{}", p.display());
     }
 }
