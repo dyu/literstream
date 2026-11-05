@@ -23,7 +23,11 @@ use std::fs::File;
 use std::io::{BufWriter, Read, Seek, SeekFrom};
 // Positional file I/O (pread/pwrite): `read_exact_at` / `write_all_at`. Unix
 // (Linux + macOS); a Windows port would use `std::os::windows::fs::FileExt`.
+#[cfg(not(target_os = "windows"))]
 use std::os::unix::fs::FileExt;
+#[cfg(target_os = "windows")]
+use std::os::windows::fs::FileExt;
+
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
