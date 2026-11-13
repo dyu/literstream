@@ -78,3 +78,95 @@ object-store ops during the 60s run (delta):
 
 cleanup  : deleting fanout-40168/ from the bucket... 1262 objects removed
 ```
+
+# garage-v2.5.0
+```sh
+GARAGE_KEYS_DIR=~/dev/gh/workspace/garage/target/keys/default ./fanout_bench.sh
+```
+```
+backend  : http://s3.localhost:9010/default
+workload : 100 databases, 60s, ~20 txns/s aggregate, tick 1000ms, sizes 100-5000 KB
+prefix   : fanout-69956/db-<i>
+
+setup    : 100 databases seeded + opened in 14.6s, RSS 67.0 MB  (1000 list, 0 get during open)
+
+
+===== results =====
+databases          : 100
+correctness        : 100/100 restored exactly
+writes issued      : 1080  (~17.9/s aggregate)
+RSS after setup    : 67.0 MB  (100 idle drivers, replication not yet running)
+peak RSS in run    : 129.3 MB  (steady-state replication of all 100)
+peak RSS w/ verify : 143.0 MB  (also restoring all 100 at once; a bench artifact)
+CPU total          : 9.93 s
+over-fold snapshots: 0
+max staged backlog : 0 bytes
+
+object-store ops during the 60s run (delta):
+  put              1862   (  30.9/s)
+  mpu_init            0   (   0.0/s)
+  mpu_part            0   (   0.0/s)
+  mpu_complete        0   (   0.0/s)
+  get              1762   (  29.2/s)
+  list                0   (   0.0/s)
+  delete              0   (   0.0/s)
+  copy                0   (   0.0/s)
+  Class A (billed: put+mpu+list+copy) 1862  (30.9/s). deletes are free on GCS.
+  list ops/s is the idle tax: it scales with databases x compaction/retention cadence, 
+  not with write volume.
+
+cleanup  : deleting fanout-69956/ from the bucket... 1862 objects removed
+```
+Space consumed after cleanup
+```sh
+du -sh target/garage-literstream-legacy 
+```
+```
+ 19M	target/garage-literstream-legacy
+```
+
+## rustfs-v1.0.5
+```sh
+./fanout_bench.sh
+```
+```
+backend  : http://localhost:9000/literstream-legacy
+workload : 100 databases, 60s, ~20 txns/s aggregate, tick 1000ms, sizes 100-5000 KB
+prefix   : fanout-71584/db-<i>
+
+setup    : 100 databases seeded + opened in 14.6s, RSS 69.5 MB  (1000 list, 0 get during open)
+
+
+===== results =====
+databases          : 100
+correctness        : 100/100 restored exactly
+writes issued      : 960  (~15.0/s aggregate)
+RSS after setup    : 69.5 MB  (100 idle drivers, replication not yet running)
+peak RSS in run    : 128.0 MB  (steady-state replication of all 100)
+peak RSS w/ verify : 138.4 MB  (also restoring all 100 at once; a bench artifact)
+CPU total          : 11.57 s
+over-fold snapshots: 0
+max staged backlog : 0 bytes
+
+object-store ops during the 64s run (delta):
+  put              1749   (  27.3/s)
+  mpu_init            0   (   0.0/s)
+  mpu_part            0   (   0.0/s)
+  mpu_complete        0   (   0.0/s)
+  get              1649   (  25.8/s)
+  list                0   (   0.0/s)
+  delete              0   (   0.0/s)
+  copy                0   (   0.0/s)
+  Class A (billed: put+mpu+list+copy) 1749  (27.3/s). deletes are free on GCS.
+  list ops/s is the idle tax: it scales with databases x compaction/retention cadence, 
+  not with write volume.
+
+cleanup  : deleting fanout-71584/ from the bucket... 1749 objects removed
+```
+Space consumed after cleanup
+```sh
+du -sh target/data/literstream-legacy
+```
+```
+  0B	target/data/literstream-legacy
+```
