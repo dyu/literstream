@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e
+set -eo pipefail
 
 CURRENT_DIR=$PWD
 # locate
@@ -32,7 +32,19 @@ fi
 
 [ -z "$FANOUT_LOCAL" ] || { ./$REL_BIN; du -sh $FANOUT_LOCAL; exit 0; }
 
-export LITESTREAM_S3_ENDPOINT='http://127.0.0.1:9000'
-export LITESTREAM_S3_REGION='us-east-1'
-export LITESTREAM_S3_BUCKET='literstream-legacy'
-LITESTREAM_S3_ACCESS_KEY='rustfs.access.KEY' LITESTREAM_S3_SECRET='rustfs.secret.KEY' ./$REL_BIN
+if [ -e "$GARAGE_KEYS_DIR/secret.txt" ]; then
+    export LITESTREAM_S3_ACCESS_KEY=`cat $GARAGE_KEYS_DIR/access.txt`
+    export LITESTREAM_S3_SECRET=`cat $GARAGE_KEYS_DIR/secret.txt`
+    export LITESTREAM_S3_BUCKET=`basename $GARAGE_KEYS_DIR`
+    export LITESTREAM_S3_REGION='garage'
+    export LITESTREAM_S3_ENDPOINT='http://s3.localhost:9010'
+else
+    export LITESTREAM_S3_ACCESS_KEY='rustfs.access.KEY'
+    export LITESTREAM_S3_SECRET='rustfs.secret.KEY'
+    export LITESTREAM_S3_BUCKET='literstream-legacy'
+    export LITESTREAM_S3_REGION='us-east-1'
+    export LITESTREAM_S3_ENDPOINT='http://localhost:9000'
+fi
+
+echo "endpoint: $LITESTREAM_S3_ENDPOINT | region: $LITESTREAM_S3_REGION"
+./$REL_BIN
